@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.location.Location
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -12,14 +11,12 @@ import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.flutter_foreground_service.notification.NotificationHelper
 import com.example.flutter_foreground_service.service.LocationForegroundService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -34,7 +31,7 @@ import java.util.Date
 class MainActivity : FlutterFragmentActivity() {
     private val CHANNEL = "flutter_foreground_service"
 
-    private var exampleService: LocationForegroundService? = null
+    private var foregroundService: LocationForegroundService? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private var serviceBoundState: Boolean = false
@@ -128,7 +125,7 @@ class MainActivity : FlutterFragmentActivity() {
             // we've bound to ExampleLocationForegroundService, cast the IBinder and get ExampleLocationForegroundService instance.
             Log.d(TAG, "onServiceConnected")
             val binder = service as LocationForegroundService.LocalBinder
-            exampleService = binder.getService()
+            foregroundService = binder.getService()
             serviceBoundState = true
             onServiceConnected()
         }
@@ -137,7 +134,7 @@ class MainActivity : FlutterFragmentActivity() {
             // This is called when the connection with the service has been disconnected. Clean up.
             Log.d(TAG, "onServiceDisconnected")
             serviceBoundState = false
-            exampleService = null
+            foregroundService = null
         }
     }
 
@@ -171,7 +168,7 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     private fun onStartOrStopForegroundServiceClick(): Boolean {
-        if (exampleService == null) {
+        if (foregroundService == null) {
             // service is not yet running, start it after permission check
             locationPermissionRequest.launch(
                 arrayOf(
@@ -182,7 +179,7 @@ class MainActivity : FlutterFragmentActivity() {
             return true
         } else {
             // service is already running, stop it
-            exampleService?.stopForegroundService()
+            foregroundService?.stopForegroundService()
             return false
         }
     }
@@ -212,7 +209,7 @@ class MainActivity : FlutterFragmentActivity() {
     private fun onServiceConnected() {
         lifecycleScope.launch {
             // observe location updates from the service
-            exampleService?.locationFlow?.map { location ->
+            foregroundService?.locationFlow?.map { location ->
                 location
             }?.collectLatest {
                 latitude = it?.latitude.toString()

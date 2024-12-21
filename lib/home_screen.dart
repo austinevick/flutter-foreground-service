@@ -43,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (isTracking)
             StreamBuilder<String>(

@@ -105,7 +105,6 @@ class LocationForegroundService : Service() {
         stopSelf()
     }
 
-
     /**
      * Sets up the location updates using the FusedLocationProviderClient, but doesn't actually start them.
      * To start the location updates, call [startLocationUpdates].
